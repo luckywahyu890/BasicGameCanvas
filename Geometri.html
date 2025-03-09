@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <title>Document</title>
+   <style>
+      #canvas{
+         border:1px solid black;
+      }
+   </style>
+</head>
+<body>
+   <canvas id="canvas"></canvas>
+
+   <script>
+      canvas.width=300
+      canvas.height=300
+      const ctx=canvas.getContext("2d")
+      class Kubus{
+         constructor(x,y,w,h,color,color2){
+            this.x=x
+            this.y=y
+            this.w=w
+            this.h=h
+            this.color=color
+            this.color2=color2
+         }
+         draw(){
+            ctx.fillStyle=this.color
+            ctx.fillRect(this.x,this.y,this.w,this.h)
+            ctx.strokeStyle=this.color2
+            ctx.lineWidth=2
+            ctx.strokeRect(this.x,this.y,this.w,this.h)
+         }
+         drawText(){
+            ctx.fillStyle="red"
+            ctx.font="bold 50px Monospace"
+            ctx.fillText("GAME OVER",10,150)
+         }
+      }
+      class Loop{
+         constructor(){
+            this.player=new Kubus(20,240,20,20,"yellow","red")
+            this.wall=[]
+            this.anClick=new Kubus(0,0,0,0,null,null)
+            this.jump=false
+            this.isTanah=false
+            this.fps=0
+            this.gravitasi=20
+            this.stratJ=null
+            this.isKO=false
+         }
+         isTouchWall(){
+            for(let i=0;i<this.wall.length;i++){
+               let w=this.wall[i]
+               let p=this.player
+               if(p.x<w.x+w.w&&p.x+p.w>w.x&&p.y<w.y+w.h&&p.y+p.h+10>w.y){
+                  this.player.y=w.y-42
+                  this.isTanah=true
+                  console.log("hello")
+               }
+               
+            }
+         }
+         isTouchScreen(){
+            this.player.x=Math.max(0,Math.min(this.player.x,120))
+         }
+         play(){
+            ctx.clearRect(0,0,300,300)
+            this.fps+=10
+             this.wall=[
+                new Kubus(-this.fps,260,240,2,"black","#333"),
+                new Kubus(260-this.fps,200,40,2,"black","#333"),
+                new Kubus(340-this.fps,140,40,2,"black","#333"),
+                new Kubus(420-this.fps,80,40,2,"black","#333"),
+                new Kubus(500-this.fps,140,40,2,"black","#333"),
+                new Kubus(580-this.fps,80,40,2,"black","#333"),
+                new Kubus(680-this.fps,80,60,2,"black","#333"),
+                new Kubus(800-this.fps,80,40,2,"black","#333"),
+                new Kubus(900-this.fps,80,40,2,"black","#333"),
+                new Kubus(1000-this.fps,80,40,2,"black","#333"),
+                new Kubus(1080-this.fps,140,40,2,"black","#333"),
+                new Kubus(1160-this.fps,210,40,2,"black","#333"),
+                new Kubus(1240-this.fps,160,40,2,"black","#333"),
+                new Kubus(1320-this.fps,100,40,2,"black","#333"),
+                new Kubus(1420-this.fps,100,40,2,"black","#333"),
+                new Kubus(1520-this.fps,100,100,2,"black","#333"),
+                ]
+            if(this.jump&&this.isTanah){
+               this.gravitasi=20
+               if(this.player.y<this.stratJ-25)
+                  this.jump=false
+               this.player.y-=30
+               this.player.x+=6
+            }else{
+               this.player.y+=this.gravitasi
+               this.player.x+=2
+            }
+            this.player.draw()
+            if(this.player.y>=350){
+            
+            this.isKO=true
+            }
+            this.wall.forEach((e,i)=>{
+               e.draw()
+            })
+            this.isTouchWall()
+            this.isTouchScreen()
+         }
+         loop(){
+            setInterval(()=>{
+               if(!this.isKO)
+                   this.play()
+               if(this.isKO)
+                   this.anClick.drawText()
+               
+            },100)
+         }
+      }
+      const game = new Loop()
+      game.loop()
+      canvas.addEventListener("click",(e)=>{
+         game.jump=true
+         game.isTanah=false
+         game.stratJ=game.player.y
+         console.log(game.jump)
+      })
+      
+   </script>
+</body>
+</html>
