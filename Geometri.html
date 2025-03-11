@@ -37,14 +37,102 @@
          drawText(){
             ctx.fillStyle="red"
             ctx.font="bold 50px Monospace"
-            ctx.fillText("GAME OVER",10,150)
+            ctx.fillText("GAME OVER",this.x,this.y)
+         }
+      }
+      class Text{
+         constructor(text,x,y,font,color){
+            this.text=text
+            this.x=x
+            this.y=y
+            this.font=font
+            this.color=color
+         }
+         draw(){
+            ctx.fillStyle=this.color
+            ctx.font=this.font
+            ctx.fillText(this.text,this.x,this.y)
+         }
+      }
+      class Pena{
+         constructor(x,y){
+            this.x=x
+            this.y=y
+         }
+         duri(){
+            ctx.beginPath()
+            ctx.moveTo(this.x,this.y)
+            ctx.lineTo(this.x-5,this.y+30)
+            ctx.lineTo(this.x+5,this.y+30)
+            ctx.lineTo(this.x,this.y)
+            ctx.fillStyle="black"
+            ctx.fill()
+         }
+         screen(){
+            ctx.fillStyle="#bbb"
+            ctx.fillRect(0,0,300,220)
+            
+            ctx.beginPath()
+            ctx.moveTo(0,170)
+            ctx.lineTo(300,170)
+            ctx.lineTo(300,220)
+            ctx.lineTo(0,220)
+            ctx.closePath()
+            ctx.fillStyle="#20B2AA"
+            ctx.fill()
+            
+            
+            ctx.beginPath()
+            ctx.moveTo(0,220)
+            ctx.lineTo(700,0)
+            ctx.lineTo(300,220)
+            ctx.closePath()
+            ctx.fillStyle="brown"
+            ctx.fill()
+         }
+         pohon(){
+            ctx.beginPath()
+            ctx.moveTo(this.x,this.y)
+            ctx.lineTo(this.x-15,this.y+40)
+            ctx.lineTo(this.x+15,this.y+40)
+            ctx.lineTo(this.x,this.y)
+            ctx.fillStyle="#228B22"
+            ctx.fill()
+            ctx.beginPath()
+            ctx.moveTo(this.x-5,this.y+40)
+            ctx.lineTo(this.x-5,this.y+70)
+            ctx.lineTo(this.x+5,this.y+70)
+            ctx.lineTo(this.x+5,this.y+40)
+            ctx.fillStyle="#A0522D"
+            ctx.fill()
+            ctx.beginPath()
+            ctx.moveTo(this.x-5,this.y+70)
+            ctx.lineTo(this.x-100,this.y+85)
+            ctx.lineTo(this.x-60,this.y+85)
+            ctx.lineTo(this.x+5,this.y+70)
+            ctx.fillStyle="#aaa"
+            ctx.fill()
+         }
+         bulan(){
+            ctx.beginPath()
+            ctx.fillStyle="yellow"
+            ctx.arc(240,50,50,0,Math.PI*2)
+            ctx.fill()
          }
       }
       class Loop{
          constructor(){
+            this.screen=[]
+            this.pohon=[]
             this.player=new Kubus(20,240,20,20,"yellow","red")
+            this.itemArah=null
+            this.itemArah2=null
+            this.trap=[]
+            this.isItemArah=false
             this.wall=[]
-            this.anClick=new Kubus(0,0,0,0,null,null)
+            this.anClick=new Text("GAME OVER",10,150,"bold 50px Monospace","red")
+            this.score=null
+            this.point=0
             this.jump=false
             this.isTanah=false
             this.fps=0
@@ -64,18 +152,42 @@
                
             }
          }
+         isTouchItem(item,b){
+            let w=item
+            let p=this.player
+               if(p.x<w.x+w.w&&p.x+p.w>w.x&&p.y<w.y+w.h&&p.y+p.h+10>w.y){
+                  this.isItemArah=b
+                  console.log(this.isItemArah)
+               }
+         }
+         isTouchTrap(){
+            for(let i=0;i<this.trap.length;i++){
+               let w=this.trap[i]
+               let p=this.player
+               if(p.x<w.x&&p.x+p.w>w.x&&p.y<w.y&&p.y+p.h>w.y){
+                  this.isKO=true
+                  console.log("ini trap")
+               }
+            }
+         }
          isTouchScreen(){
             this.player.x=Math.max(0,Math.min(this.player.x,120))
          }
          play(){
             ctx.clearRect(0,0,300,300)
-            this.fps+=10
+            this.point++
              this.wall=[
                 new Kubus(-this.fps,260,240,2,"black","#333"),
+                new Kubus(250-this.fps,280,270,2,"black","#333"),
                 new Kubus(260-this.fps,200,40,2,"black","#333"),
                 new Kubus(340-this.fps,140,40,2,"black","#333"),
                 new Kubus(420-this.fps,80,40,2,"black","#333"),
+                new Kubus(420-this.fps,180,40,2,"black","#333"),
                 new Kubus(500-this.fps,140,40,2,"black","#333"),
+                new Kubus(550-this.fps,210,100,2,"black","#333"),
+                new Kubus(660-this.fps,250,100,2,"black","#333"),
+                new Kubus(770-this.fps,180,100,2,"black","#333"),
+                new Kubus(880-this.fps,140,100,2,"black","#333"),
                 new Kubus(580-this.fps,80,40,2,"black","#333"),
                 new Kubus(680-this.fps,80,60,2,"black","#333"),
                 new Kubus(800-this.fps,80,40,2,"black","#333"),
@@ -86,14 +198,65 @@
                 new Kubus(1240-this.fps,160,40,2,"black","#333"),
                 new Kubus(1320-this.fps,100,40,2,"black","#333"),
                 new Kubus(1420-this.fps,100,40,2,"black","#333"),
-                new Kubus(1520-this.fps,100,100,2,"black","#333"),
+                new Kubus(1520-this.fps,100,300,2,"black","#333"),
                 ]
+            this.itemArah=new Kubus(1750-this.fps,60,20,20,"green","brown")
+            this.itemArah2=new Kubus(20-this.fps,240,20,20,"green","brown")
+            this.trap=[
+               new Pena(140-this.fps,230),
+               new Pena(380-this.fps,250),
+               new Pena(600-this.fps,180),
+               new Pena(710-this.fps,220),
+               new Pena(1650-this.fps,70),
+               
+               ]
+            this.screen=[new Pena(null,null)]
+            this.pohon=[
+               new Pena(80-this.fps,160),
+               new Pena(160-this.fps,160),
+               new Pena(220-this.fps,160),
+               new Pena(320-this.fps,160),
+               new Pena(410-this.fps,160),
+               new Pena(510-this.fps,160),
+               new Pena(610-this.fps,240),
+               new Pena(810-this.fps,240),
+               new Pena(900-this.fps,240),
+               new Pena(1000-this.fps,240),
+               new Pena(1100-this.fps,240),
+               new Pena(1200-this.fps,240),
+               new Pena(1240-this.fps,150),
+               new Pena(1380-this.fps,150),
+               new Pena(1480-this.fps,150),
+               new Pena(1640-this.fps,150),
+               new Pena(1300-this.fps,240),
+               new Pena(1400-this.fps,240),
+               new Pena(1500-this.fps,240),
+               new Pena(1600-this.fps,240),
+               new Pena(1700-this.fps,240),
+               new Pena(1800-this.fps,240),
+               
+               ]
+            this.score=new Text(`score : ${this.point}`,20,20,"bold 20px Monospace","black")
+               
+            this.screen.forEach(e=>{
+               e.screen()
+               e.bulan()
+               
+            })
+            if(!this.isItemArah)
+                this.fps+=10
+            if(this.isItemArah){
+                this.fps-=10
+            }
             if(this.jump&&this.isTanah){
                this.gravitasi=20
                if(this.player.y<this.stratJ-25)
                   this.jump=false
                this.player.y-=30
-               this.player.x+=6
+               if(!this.isItemArah)
+                  this.player.x+=6
+               if(this.isItemArah)
+                  this.player.x-=6
             }else{
                this.player.y+=this.gravitasi
                this.player.x+=2
@@ -108,14 +271,25 @@
             })
             this.isTouchWall()
             this.isTouchScreen()
+            this.itemArah.draw()
+            this.itemArah2.draw()
+            
+            this.pohon.forEach(e=>e.pohon())
+            this.trap.forEach(e=>e.duri())
+            this.isTouchTrap()
+            
+            this.isTouchItem(this.itemArah,true)
+            this.isTouchItem(this.itemArah2,false)
+            this.score.draw()
          }
          loop(){
             setInterval(()=>{
                if(!this.isKO)
                    this.play()
-               if(this.isKO)
-                   this.anClick.drawText()
-               
+               if(this.isKO){
+                   this.anClick.draw()
+                   //window.location.reload()
+               }
             },100)
          }
       }
