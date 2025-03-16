@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <title>Document</title>
+</head>
+<body>
+   <canvas id="canvas"></canvas>
+   <script>
+      let ctx=canvas.getContext("2d")
+      canvas.width=300
+      canvas.height=400
+      class Player{
+         constructor(x,y){
+            this.x=x
+            this.y=y
+         }
+         draw(){
+            ctx.fillStyle="red"
+            ctx.fillRect(this.x-10,this.y+8,40,5)
+            ctx.fillRect(this.x-10,this.y+28,40,5)
+            ctx.fillStyle="black"
+            ctx.fillRect(this.x-20,this.y+18,50,5)
+            for(let i=0;i<2;i++){
+            ctx.beginPath()
+            ctx.moveTo(this.x,this.y)
+            ctx.lineTo(this.x+40-i*4,this.y+20)
+            ctx.lineTo(this.x,this.y+40-i*2)
+            ctx.lineTo(this.x,this.y)
+            ctx.fillStyle=i==0?"black":"yellow"
+            ctx.fill()
+            }
+         }
+      }
+      class Musuh extends Player{
+         constructor(x,y){
+            super(x,y)
+            this.x=Math.floor(Math.random()*50)+280
+            this.y=Math.floor(Math.random()*200)+100
+            this.hp=30
+         }
+         draw(){
+            ctx.fillStyle="red"
+            ctx.fillRect(this.x-5,this.y-8,this.hp,5)
+            ctx.beginPath()
+            ctx.fillStyle="blue"
+            for(let i=0;i<5;i++)
+            ctx.fillRect(this.x+i*5,this.y+10,2,25)
+            ctx.fill()
+            ctx.beginPath()
+            ctx.moveTo(this.x,this.y)
+            ctx.lineTo(this.x+20,this.y)
+            ctx.lineTo(this.x+30,this.y+10)
+            ctx.lineTo(this.x+30,this.y+20)
+            ctx.lineTo(this.x-10,this.y+20)
+            ctx.lineTo(this.x-10,this.y+10)
+            ctx.lineTo(this.x,this.y)
+            ctx.fillStyle="green"
+            ctx.fill()
+            if(Math.random()<0.2){
+               this.x--
+            }else{this.x-=5}
+         }
+      }
+      class Peluru{
+         constructor(x,y){
+            this.x=x
+            this.y=y
+            this.w=10
+            this.h=10
+            this.follow=true
+            this.ulti=false
+            this.fps=1
+         }
+         draw(){
+            if(!inti.isUlti){
+            ctx.fillStyle="black"
+            ctx.fillRect(this.x,this.y,this.w,this.h)
+            }else{
+               ctx.beginPath()
+               ctx.arc(this.x,this.y,10*this.fps,0,Math.PI*2)
+               ctx.fillStyle="orange"
+               ctx.fill()
+            }
+         }
+         move(pX,pY){
+            if(this.follow){
+               this.x=pX
+               this.y=pY
+            }
+            this.follow=false
+            if(!this.follow)
+               this.x+=20
+            if(this.x>=300)
+               this.follow=true
+         }
+      }
+      class Bar{
+         constructor(x,y){
+            this.x=x
+            this.y=y
+            this.mana=0
+            this.hp=85
+         }
+         draw(){
+            ctx.fillStyle="#111"
+            ctx.fillRect(5,5,100,35)
+            ctx.fillStyle="#eee"
+            ctx.fillRect(10,10,90,10)
+            ctx.fillStyle="red"
+            ctx.fillRect(12,12,this.hp,5)
+            
+            ctx.fillStyle="#eee"
+            ctx.fillRect(10,25,90,10)
+            ctx.fillStyle="blue"
+            ctx.fillRect(12,27,this.mana,5)
+         }
+      }
+      class Loop{
+         constructor(){
+            this.player=new Player(40,150)
+            this.bar=new Bar()
+            this.musuh=[]
+            this.isUlti=false
+            for(let i=0;i<4;i++)
+                this.musuh.push(new Musuh(150,150))
+            this.peluru=[]
+            for(let i=0;i<10;i++)
+                this.peluru.push(new Peluru(this.player.x-i*2,this.player.y+15))
+         }
+         isPeluruHitMusuh(){
+            for(let i=0;i<this.peluru.length;i++){
+               let p=this.peluru[i]
+               for(let j=0;j<this.musuh.length;j++){
+                  let m= this.musuh[j]
+                  if(p.x<m.x+30&&p.x+10>m.x&&p.y<m.y+20&&p.y+10>m.y){
+                     console.log("ubur ubur")
+                     m.hp-=5
+                     if(!this.isUlti&&this.bar.mana<100)
+                     this.bar.mana++
+                     if(this.isUlti)
+                        m.x+=10
+                  }
+               if(m.hp<=0||m.x<=0){
+                  m.x=Math.floor(Math.random()*70)+300
+                  m.y=Math.floor(Math.random()*200)+100
+                    m.hp=30
+               }
+                  let pl=this.player
+                  if(pl.x<m.x+30&&pl.x+40>m.x&&pl.y<m.y+20&&pl.y+40>m.y){
+                     console.log("ueuwjwjejej")
+                    this.bar.hp-=10
+                    m.x=Math.floor(Math.random()*70)+300
+                    m.y=Math.floor(Math.random()*200)+100
+                    m.hp=30
+                  }
+               }
+            }
+            if(this.bar.mana>=82)
+                       this.isUlti=true
+            if(this.isUlti)
+               this.bar.mana--
+            if(this.bar.mana<=0)
+               this.isUlti=false
+         }
+         
+         loop(){
+            setInterval(()=>{
+               ctx.clearRect(0,0,300,400)
+               this.peluru.forEach((e,i)=>{
+                  setTimeout(()=>{
+                     e.move(this.player.x,this.player.y+15)
+                  },i*50)
+                  e.draw()
+               })
+               this.isPeluruHitMusuh()
+               this.player.draw()
+               this.musuh.forEach(e=>e.draw())
+               this.bar.draw()
+            },80)
+         }
+      }
+      let inti=new Loop()
+      inti.loop()
+      canvas.addEventListener("touchmove",(e)=>{
+         let rect = canvas.getBoundingClientRect()
+         let t=e.touches[0]
+         let dx=t.clientX-rect.left
+         let dy=t.clientY-rect.top
+         let dis=Math.hypot(dx,dy)
+         if(dis>inti.player.y)
+            inti.player.y+=3
+         if(dis<inti.player.y)
+            inti.player.y-=3
+      })
+      canvas.addEventListener("click",(e)=>{
+         let rect = canvas.getBoundingClientRect()
+         let dx=e.clientX-rect.left
+         let dy=e.clientY-rect.top
+         if(dx>inti.player.x)
+            inti.player.x+=10
+         if(dx<inti.player.x)
+            inti.player.x-=10
+         if(dy>inti.player.y)
+            inti.player.y+=20
+         if(dy<inti.player.y)
+            inti.player.y-=20
+      })
+   </script>
+</body>
+</html>
